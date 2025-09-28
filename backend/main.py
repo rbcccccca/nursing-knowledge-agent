@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
-from routes.agent import router as agent_router
-from routes.quiz import router as quiz_router
+from .routes.agent import router as agent_router
+from .routes.quiz import router as quiz_router
 from fastapi.middleware.cors import CORSMiddleware
 
 
