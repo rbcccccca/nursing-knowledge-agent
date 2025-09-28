@@ -1,0 +1,16 @@
+# Global ignores
+.env
+.env.*
+.DS_Store
+*.pyc
+__pycache__/
+
+# Python
+backend/.venv/
+backend/.mypy_cache/
+backend/.pytest_cache/
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
