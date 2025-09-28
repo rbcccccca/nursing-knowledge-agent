@@ -1,4 +1,4 @@
-"""Utility wrappers around OpenAI API usage for the nursing knowledge agent."""
+ï»¿"""Utility wrappers around OpenAI API usage for the nursing knowledge agent."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ class OpenAIService:
 
     async def translate_dual_language(self, text: str) -> dict[str, str]:
         """Return bilingual translation output template."""
-        return {"original": text, "translated": "´ý¼¯³É·­Òë½á¹û"}
+        return {"original": text, "translated": "Pending translation"}
 
     async def build_quiz(self, seed: dict[str, Any]) -> list[dict[str, Any]]:
         """Produce quiz items based on the supplied seed payload."""

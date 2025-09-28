@@ -1,4 +1,4 @@
-# Integration Checklist
+﻿# Integration Checklist
 
 ## Supabase
 - Create tables: `word_entries`, `quiz_sessions`, `quiz_attempts`, `study_stats`.
@@ -26,3 +26,8 @@
 - Protect `main` with review checks; enable preview deployments from `dev`.
 - Automate backend deployment via Render/Fly/Heroku or Supabase Edge Functions (future task).
 - Schedule dependency updates and lint/test pipelines using GitHub Actions.
+
+## Render Deployment Notes
+- Ensure all backend source files are saved with UTF-8 encoding; non-ASCII placeholders can break build steps.
+- When replacing placeholder text, prefer ASCII until OpenAI integration is wired to avoid codec errors.
+- After rotating keys or updating `.env`, redeploy the Render service to pick up fresh configuration.
