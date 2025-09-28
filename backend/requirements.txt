@@ -7,3 +7,4 @@ qdrant-client
 supabase
 python-dotenv
 PyPDF2
+python-multipart
