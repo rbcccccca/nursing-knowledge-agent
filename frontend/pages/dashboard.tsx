@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+ï»¿import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 
 import { apiClient } from "../services/apiClient";
@@ -26,7 +26,7 @@ const DashboardPage = () => {
     if (error) {
       return { label: "Backend offline", variant: "status-pill offline" } as const;
     }
-    return { label: "Checking status¡­", variant: "status-pill" } as const;
+    return { label: "Checking statusâ€¦", variant: "status-pill" } as const;
   }, [health, error]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -68,7 +68,7 @@ const DashboardPage = () => {
               placeholder="Describe the nursing concept, abbreviation, or scenario you want clarified"
             />
             <button type="submit" className="primary-button" disabled={loading}>
-              {loading ? "Thinking¡­" : "Ask Agent ¡ú"}
+              {loading ? "Thinkingâ€¦" : "Ask Agent â†’"}
             </button>
           </form>
         </section>

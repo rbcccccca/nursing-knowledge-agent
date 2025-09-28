@@ -1,19 +1,19 @@
-import Head from "next/head";
+ï»¿import Head from "next/head";
 import Link from "next/link";
 
 const features = [
   {
-    icon: "??",
+    icon: "ðŸ“š",
     title: "Knowledge Base",
     copy: "Capture core terms, add bilingual context, and keep organized notes in one scroll-friendly hub.",
   },
   {
-    icon: "??",
+    icon: "ðŸ§ ",
     title: "AI Assistant",
     copy: "Blend RAG lookups with GPT explanations for fast clarification during study sprints.",
   },
   {
-    icon: "??",
+    icon: "ðŸ“",
     title: "Quiz Generator",
     copy: "Spin up spelling drills, abbreviation reveals, and scenario questions in seconds.",
   },
@@ -47,10 +47,10 @@ const HomePage = () => {
           </div>
 
           <Link href="/dashboard" className="primary-button" aria-label="Open nursing study dashboard">
-            Enter Dashboard ¡ú
+            Enter Dashboard â†’
           </Link>
 
-          <p className="footer-note">Works beautifully on iPhone ¡ª add it to your home screen for quick review sessions.</p>
+          <p className="footer-note">Works beautifully on iPhone â€” add it to your home screen for quick review sessions.</p>
         </div>
       </main>
     </>
