@@ -1,4 +1,4 @@
-# Global ignores
+﻿# Global ignores
 .env
 .env.*
 .DS_Store
@@ -14,3 +14,4 @@ backend/.pytest_cache/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+data/

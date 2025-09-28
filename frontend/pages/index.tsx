@@ -6,16 +6,19 @@ const features = [
     icon: "📚",
     title: "Knowledge Base",
     copy: "Capture core terms, add bilingual context, and keep organized notes in one scroll-friendly hub.",
+    href: "/knowledge",
   },
   {
     icon: "🧠",
     title: "AI Assistant",
     copy: "Blend RAG lookups with GPT explanations for fast clarification during study sprints.",
+    href: "/dashboard",
   },
   {
     icon: "📝",
     title: "Quiz Generator",
     copy: "Spin up spelling drills, abbreviation reveals, and scenario questions in seconds.",
+    href: "/quiz",
   },
 ];
 
@@ -37,12 +40,14 @@ const HomePage = () => {
           </header>
 
           <div className="feature-list">
-            {features.map(({ icon, title, copy }) => (
-              <article className="feature-card" key={title}>
-                <div className="feature-icon" aria-hidden>{icon}</div>
+            {features.map(({ icon, title, copy, href }) => (
+              <Link href={href} key={title} className="feature-card" aria-label={`Open ${title}`}>
+                <div className="feature-icon" aria-hidden>
+                  {icon}
+                </div>
                 <h2 className="feature-title">{title}</h2>
                 <p className="feature-copy">{copy}</p>
-              </article>
+              </Link>
             ))}
           </div>
 

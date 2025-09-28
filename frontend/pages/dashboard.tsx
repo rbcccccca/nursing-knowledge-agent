@@ -1,5 +1,8 @@
 ﻿import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import useSWR from "swr";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import { apiClient } from "../services/apiClient";
 
@@ -12,6 +15,7 @@ const DashboardPage = () => {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const markdownPlugins = useMemo(() => [remarkGfm as unknown as any], []);
 
   useEffect(() => {
     if (health) {
@@ -49,6 +53,15 @@ const DashboardPage = () => {
   return (
     <main className="page-shell">
       <div className="page-card">
+        <div className="top-nav">
+          <Link href="/" className="back-link" aria-label="Go back to home">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11.25 5L6.25 10L11.25 15" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Back
+          </Link>
+        </div>
+
         <header className="page-header">
           <span className={status.variant}>{status.label}</span>
           <h1 className="page-title">Study Dashboard</h1>
@@ -76,7 +89,9 @@ const DashboardPage = () => {
         {result && (
           <article className="response-card" aria-live="polite">
             <h2 className="response-title">Agent response</h2>
-            <p className="response-body">{result}</p>
+            <div className="markdown-body">
+              <ReactMarkdown remarkPlugins={markdownPlugins}>{result}</ReactMarkdown>
+            </div>
           </article>
         )}
 

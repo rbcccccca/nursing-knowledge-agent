@@ -1,10 +1,10 @@
-"""Agent-facing FastAPI routes for glossary lookup and RAG queries."""
+﻿"""Agent-facing FastAPI routes for glossary lookup and RAG queries."""
 
 from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 
 from ..models.word_entry import WordEntry, WordEntryCreate
@@ -30,6 +30,10 @@ class WordEntryResponse(BaseModel):
     entry: WordEntry
 
 
+class WordEntryListResponse(BaseModel):
+    items: list[dict[str, str | None]]
+
+
 async def get_openai_service() -> OpenAIService:
     return OpenAIService()
 
@@ -47,6 +51,7 @@ async def query_agent(
     payload: AgentQueryRequest,
     openai_service: Annotated[OpenAIService, Depends(get_openai_service)],
     qdrant_service: Annotated[QdrantService, Depends(get_qdrant_service)],
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
 ) -> AgentQueryResponse:
     """Return an LLM generated explanation plus optional semantic matches."""
     answer = await openai_service.explain_term(payload.query)
@@ -54,11 +59,21 @@ async def query_agent(
 
     if payload.enable_rag:
         embeddings = await openai_service.embed_text([payload.query])
-        search_results = await qdrant_service.semantic_search(embeddings[0])
-        sources = [
-            {"title": item.get("title", ""), "snippet": item.get("text", "")}
-            for item in search_results
-        ]
+        if embeddings:
+            search_results = await qdrant_service.semantic_search(embeddings[0])
+            sources = [
+                {"title": item.get("title", ""), "snippet": item.get("text", "")}
+                for item in search_results
+            ]
+
+    translation_payload = await openai_service.translate_dual_language(payload.query)
+    await supabase_service.upsert_word_entry(
+        {
+            "term": payload.query.strip(),
+            "translation": translation_payload.get("translated"),
+            "notes": answer,
+        }
+    )
 
     return AgentQueryResponse(answer=answer, sources=sources)
 
@@ -80,7 +95,6 @@ async def create_word_entry(
             "term": payload.term,
             "term_type": payload.term_type,
             "notes": ai_notes,
-            "owner_id": payload.owner_id,
         }
     )
 
@@ -88,9 +102,19 @@ async def create_word_entry(
         id=str(record.get("id", payload.term)),
         term=record.get("term", payload.term),
         term_type=record.get("term_type", payload.term_type),
-        definition_cn=record.get("definition_cn"),
+        definition_cn=record.get("translation"),
         definition_en=record.get("definition_en"),
         notes=record.get("notes", ai_notes),
     )
 
     return WordEntryResponse(entry=entry)
+
+
+@router.get("/entries", response_model=WordEntryListResponse)
+async def list_word_entries(
+    q: Annotated[str | None, Query(alias="search", default=None)] = None,
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)] = None,
+) -> WordEntryListResponse:
+    """Return stored word entries filtered by optional search term."""
+    items = await supabase_service.list_word_entries(q) if supabase_service else []
+    return WordEntryListResponse(items=items)
