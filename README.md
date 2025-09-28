@@ -1,13 +1,13 @@
-# Nursing Knowledge Agent
+ï»¿# Nursing Knowledge Agent
 
 Multi-module project that delivers a bilingual nursing knowledge base, an AI-powered agent with RAG search, and adaptive quiz tooling.
 
 ## Repository Layout
 
-- `frontend/` ¨C Next.js UI with Supabase auth integration and API client stubs.
-- `backend/` ¨C FastAPI service orchestrating OpenAI, Qdrant, and Supabase connectors.
-- `vectorstore/` ¨C Utilities to chunk and ingest documents into Qdrant.
-- `.env.example` ¨C Environment variables required across services.
+- `frontend/` â€“ Next.js UI with Supabase auth integration and API client stubs.
+- `backend/` â€“ FastAPI service orchestrating OpenAI, Qdrant, and Supabase connectors.
+- `vectorstore/` â€“ Utilities to chunk and ingest documents into Qdrant.
+- `.env.example` â€“ Environment variables required across services.
 
 ## Getting Started
 
@@ -47,7 +47,7 @@ This script currently performs minimal chunking and uses placeholder embeddings 
 
 ## Next Steps
 
-1. Wire `OpenAIService`, `QdrantService`, and `SupabaseService` to their respective SDKs using keys from `.env`.
+1. Configure `.env` with `OPENAI_API_KEY`, `SUPABASE_URL`, and other secrets so the wired OpenAI service can generate real explanations and quizzes.
 2. Flesh out RAG pipelines: document upload API, chunking strategy, metadata storage.
 3. Build authenticated flows in Next.js (Supabase Auth helpers, protected routes).
 4. Implement quiz persistence and spaced repetition scheduling logic.
