@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 
 import { apiClient } from "../services/apiClient";
@@ -6,49 +6,84 @@ import { apiClient } from "../services/apiClient";
 const fetcher = (url: string) => apiClient.get(url).then((res) => res.data);
 
 const DashboardPage = () => {
-  const { data: health } = useSWR("/health", fetcher);
+  const { data: health, error } = useSWR("/health", fetcher, {
+    revalidateOnFocus: false,
+  });
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (health) {
-      console.log("API health", health);
+      console.debug("API health", health);
     }
   }, [health]);
 
+  const status = useMemo(() => {
+    if (health) {
+      return { label: "Backend online", variant: "status-pill" } as const;
+    }
+    if (error) {
+      return { label: "Backend offline", variant: "status-pill offline" } as const;
+    }
+    return { label: "Checking status¡­", variant: "status-pill" } as const;
+  }, [health, error]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const response = await apiClient.post("/agent/query", { query });
-    setResult(response.data?.answer ?? "No response yet");
+    if (!query.trim()) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await apiClient.post("/agent/query", { query });
+      setResult(response.data?.answer ?? "No response yet");
+    } catch (submitError) {
+      console.error("Agent query failed", submitError);
+      setResult("Unable to reach the agent service right now. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10 space-y-8">
-      <section>
-        <h1 className="text-2xl font-semibold">Study Dashboard</h1>
-        <p className="text-sm text-slate-500">Check API health and ask quick questions.</p>
-      </section>
-      <section>
-        <h2 className="text-xl font-medium">Agent Quick Query</h2>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <textarea
-            className="w-full rounded border border-slate-300 p-2"
-            rows={4}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Describe the nursing concept you want explained"
-          />
-          <button type="submit" className="rounded bg-blue-600 px-4 py-2 text-white">
-            Ask Agent
-          </button>
-        </form>
+    <main className="page-shell">
+      <div className="page-card">
+        <header className="page-header">
+          <span className={status.variant}>{status.label}</span>
+          <h1 className="page-title">Study Dashboard</h1>
+          <p className="page-subtitle">
+            Keep pulse on your study flow, queue quick questions, and review generated answers in one clean view.
+          </p>
+        </header>
+
+        <section>
+          <p className="section-label">Agent quick query</p>
+          <form className="dashboard-form" onSubmit={handleSubmit}>
+            <textarea
+              className="dashboard-textarea"
+              rows={4}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Describe the nursing concept, abbreviation, or scenario you want clarified"
+            />
+            <button type="submit" className="primary-button" disabled={loading}>
+              {loading ? "Thinking¡­" : "Ask Agent ¡ú"}
+            </button>
+          </form>
+        </section>
+
         {result && (
-          <article className="mt-4 rounded border border-slate-200 bg-slate-50 p-4">
-            <h3 className="text-lg font-medium">Agent Response</h3>
-            <p className="whitespace-pre-wrap text-sm text-slate-700">{result}</p>
+          <article className="response-card" aria-live="polite">
+            <h2 className="response-title">Agent response</h2>
+            <p className="response-body">{result}</p>
           </article>
         )}
-      </section>
+
+        <p className="footer-note">
+          Tip: add complex cases here during rounds, then refine the flashcards back on a larger screen.
+        </p>
+      </div>
     </main>
   );
 };
