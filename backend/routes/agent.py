@@ -112,9 +112,9 @@ async def create_word_entry(
 
 @router.get("/entries", response_model=WordEntryListResponse)
 async def list_word_entries(
-    q: Annotated[str | None, Query(alias="search", default=None)] = None,
-    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)] = None,
+    q: Annotated[str | None, Query(default=None, alias="search")],
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
 ) -> WordEntryListResponse:
     """Return stored word entries filtered by optional search term."""
-    items = await supabase_service.list_word_entries(q) if supabase_service else []
+    items = await supabase_service.list_word_entries(q)
     return WordEntryListResponse(items=items)
