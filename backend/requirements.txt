@@ -1,4 +1,4 @@
-fastapi
+﻿fastapi
 uvicorn[standard]
 httpx
 pydantic-settings
@@ -6,3 +6,4 @@ openai
 qdrant-client
 supabase
 python-dotenv
+PyPDF2

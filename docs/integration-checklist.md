@@ -31,3 +31,4 @@
 - Ensure all backend source files are saved with UTF-8 encoding; non-ASCII placeholders can break build steps.
 - When replacing placeholder text, prefer ASCII until OpenAI integration is wired to avoid codec errors.
 - After rotating keys or updating `.env`, redeploy the Render service to pick up fresh configuration.
+- Ensure backend deployments include `PyPDF2` dependency for PDF text extraction.

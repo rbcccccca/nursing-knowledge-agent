@@ -85,6 +85,31 @@ a:hover {
   color: #2563eb;
 }
 
+.nav-tabs {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.2rem;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.tab-button {
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab-button.active {
+  background: #fff;
+  color: #1e293b;
+  box-shadow: 0 8px 16px -12px rgba(15, 23, 42, 0.45);
+}
+
 .feature-list {
   display: grid;
   gap: 1.35rem;
@@ -135,11 +160,22 @@ a:hover {
   background: linear-gradient(135deg, #2563eb, #7c3aed);
   box-shadow: 0 10px 25px -12px rgba(79, 70, 229, 0.7);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
 
 .primary-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 16px 28px -12px rgba(79, 70, 229, 0.8);
+}
+
+.danger-button {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 999px;
+  padding: 0.7rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .section-label {
@@ -200,6 +236,31 @@ a:hover {
   overflow-y: auto;
 }
 
+.detail-card {
+  border-radius: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(255, 255, 255, 0.96);
+  padding: 1.1rem 1.25rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.document-preview {
+  max-height: 200px;
+  overflow-y: auto;
+  background: rgba(241, 245, 249, 0.8);
+  border-radius: 16px;
+  padding: 0.8rem;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
 .response-title {
   margin: 0;
   font-size: 0.95rem;
@@ -256,6 +317,8 @@ a:hover {
   padding: 0.85rem 1rem;
   display: grid;
   gap: 0.3rem;
+  text-align: left;
+  cursor: pointer;
 }
 
 .item-term {
@@ -303,6 +366,27 @@ a:hover {
 
 .markdown-body li + li {
   margin-top: 0.4rem;
+}
+
+.upload-form {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  border: 1px dashed rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.upload-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.upload-label input[type="file"] {
+  flex: 1;
 }
 
 @media (min-width: 900px) {

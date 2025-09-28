@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel, Field
 
 from ..models.word_entry import WordEntry, WordEntryCreate
@@ -32,6 +32,29 @@ class WordEntryResponse(BaseModel):
 
 class WordEntryListResponse(BaseModel):
     items: list[dict[str, str | None]]
+
+
+class WordEntryUpdate(BaseModel):
+    term: str | None = None
+    translation: str | None = None
+    notes: str | None = None
+    categories: list[str] | None = None
+
+
+class DocumentUploadResponse(BaseModel):
+    id: str
+    title: str
+    filename: str
+    summary: str | None = None
+    categories: list[str] = Field(default_factory=list)
+
+
+class DocumentListResponse(BaseModel):
+    items: list[DocumentUploadResponse]
+
+
+class DocumentDetailResponse(DocumentUploadResponse):
+    content: str | None = None
 
 
 async def get_openai_service() -> OpenAIService:
@@ -72,8 +95,20 @@ async def query_agent(
             "term": payload.query.strip(),
             "translation": translation_payload.get("translated"),
             "notes": answer,
+            "categories": ["agent-query"],
         }
     )
+
+    if "quiz" in payload.query.lower():
+        quiz_items = await openai_service.build_quiz({"prompt": payload.query, "answer": answer})
+        await supabase_service.add_quiz(
+            {
+                "title": payload.query[:80],
+                "category": "agent",
+                "questions": quiz_items,
+                "metadata": {"source": "agent_query", "query": payload.query},
+            }
+        )
 
     return AgentQueryResponse(answer=answer, sources=sources)
 
@@ -95,6 +130,8 @@ async def create_word_entry(
             "term": payload.term,
             "term_type": payload.term_type,
             "notes": ai_notes,
+            "translation": payload.definition_cn,
+            "categories": [],
         }
     )
 
@@ -118,3 +155,95 @@ async def list_word_entries(
     """Return stored word entries filtered by optional search term."""
     items = await supabase_service.list_word_entries(q)
     return WordEntryListResponse(items=items)
+
+
+@router.get("/entries/{entry_id}", response_model=dict)
+async def get_word_entry(
+    entry_id: str,
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
+) -> dict[str, Any]:
+    record = await supabase_service.get_word_entry(entry_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return record
+
+
+@router.put("/entries/{entry_id}", response_model=dict)
+async def update_word_entry(
+    entry_id: str,
+    payload: WordEntryUpdate,
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
+) -> dict[str, Any]:
+    updated = await supabase_service.update_word_entry(entry_id, payload.model_dump(exclude_unset=True))
+    if not updated:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return updated
+
+
+@router.delete("/entries/{entry_id}", response_model=dict)
+async def delete_word_entry(
+    entry_id: str,
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
+) -> dict[str, str]:
+    deleted = await supabase_service.delete_word_entry(entry_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return {"status": "deleted"}
+
+
+@router.post("/documents", response_model=DocumentUploadResponse)
+async def upload_document(
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
+    file: UploadFile = File(...),
+    title: Annotated[str | None, Form()] = None,
+    summary: Annotated[str | None, Form()] = None,
+    categories: Annotated[str | None, Form()] = None,
+) -> DocumentUploadResponse:
+    content = await file.read()
+    record = await supabase_service.store_document(
+        {
+            "filename": file.filename,
+            "title": title,
+            "summary": summary,
+            "categories": [item.strip() for item in (categories or "").split(",") if item.strip()],
+        },
+        content,
+    )
+    record.setdefault("categories", [])
+    return DocumentUploadResponse(**record)
+
+
+@router.get("/documents", response_model=DocumentListResponse)
+async def list_documents(
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
+    search: Annotated[str | None, Query()] = None,
+) -> DocumentListResponse:
+    items = await supabase_service.list_documents(search)
+    processed = [
+        DocumentUploadResponse(**{**item, "categories": item.get("categories", [])}) for item in items
+    ]
+    return DocumentListResponse(items=processed)
+
+
+@router.get("/documents/{doc_id}", response_model=DocumentDetailResponse)
+async def get_document(
+    doc_id: str,
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
+) -> DocumentDetailResponse:
+    record = await supabase_service.get_document(doc_id)
+    if not record:
+        raise HTTPException(status_code=404, detail="Document not found")
+    content = await supabase_service.read_document_text(doc_id)
+    record.setdefault("categories", [])
+    return DocumentDetailResponse(**record, content=content)
+
+
+@router.delete("/documents/{doc_id}", response_model=dict)
+async def delete_document(
+    doc_id: str,
+    supabase_service: Annotated[SupabaseService, Depends(get_supabase_service)],
+) -> dict[str, str]:
+    deleted = await supabase_service.delete_document(doc_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {"status": "deleted"}
