@@ -1,16 +1,21 @@
-from fastapi import FastAPI
+﻿"""Main FastAPI application setup."""
 
-from .routes.agent import router as agent_router
-from .routes.quiz import router as quiz_router
+from __future__ import annotations
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .config import get_settings
+from .routes.agent import router as agent_router
+from .routes.quiz import router as quiz_router
 
+
+settings = get_settings()
 app = FastAPI(title="Nursing Knowledge Agent API")
 
-# 添加 CORS 中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://nursing-knowledge-agent.vercel.app"],  # 或改成 ["https://nursing-knowledge-agent.vercel.app"]
+    allow_origins=settings.get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

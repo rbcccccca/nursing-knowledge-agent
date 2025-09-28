@@ -1,4 +1,4 @@
-"""Application configuration and settings management."""
+﻿"""Application configuration and settings management."""
 
 from __future__ import annotations
 
@@ -16,12 +16,19 @@ class Settings(BaseSettings):
     qdrant_url: str = Field(default="", alias="QDRANT_URL")
     qdrant_api_key: str = Field(default="", alias="QDRANT_API_KEY")
     vercel_environment: Optional[str] = Field(default=None, alias="VERCEL_ENV")
+    cors_allowed_origins: str = Field(default="*", alias="CORS_ALLOWED_ORIGINS")
 
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
         "case_sensitive": False,
     }
+
+    def get_cors_origins(self) -> list[str]:
+        value = (self.cors_allowed_origins or "").strip()
+        if not value or value == "*":
+            return ["*"]
+        return [origin.strip() for origin in value.split(",") if origin.strip()]
 
 
 @lru_cache

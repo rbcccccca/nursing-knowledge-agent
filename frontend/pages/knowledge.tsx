@@ -89,11 +89,12 @@ const KnowledgePage = () => {
 
   const handleUploadDocument = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     await apiClient.post("/agent/documents", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    event.currentTarget.reset();
+    form.reset();
     await mutate(buildDocumentKey(""));
     setSearch("");
   };
