@@ -1,4 +1,8 @@
 fastapi
 uvicorn[standard]
-pydantic-settings
 httpx
+pydantic-settings
+openai
+qdrant-client
+supabase
+python-dotenv
